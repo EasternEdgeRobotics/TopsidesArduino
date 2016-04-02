@@ -25,32 +25,13 @@ void setup() {
 
 
 void loop() {
-  //check_buttons();                                                        // call to check for button input
-  //print_button_status();                                                  // print array to console for testing
-  //Serial.write (button_status,4);                                         // write the button_status array to the serial line in 4 bytes
-  //Serial.readBytes (button_led,4);                                        // read 4 bytes and enter that into button_led
-  //light_buttons();
+  check_buttons();                                                        // call to check for button input status
+  Serial.write (button_status,4);                                         // write the button_status array to the serial line in 4 bytes
+  Serial.readBytes (button_led,4);                                        // read 4 bytes and enter that into button_led
+  light_buttons();                                                        // light the leds on the buttons based on the array button_led
   check_analog();                                                         // call to check for analog input values
-  //analog_status[0] = analogRead (A0);
-  //analog_test = 0;
-  //Serial.println (analog_test, BIN);
-  //Serial.println (1022, BIN);
-  //byte analog_char1 = (byte) 1022;
-  //byte analog_char3 = (word) 1022 >> 8;
-  //String analog_test = String (1022, BIN);
-  //Serial.println (analog_char1, BIN);
-  //Serial.println (analog_char3, BIN);
-  //Serial.println (analog_test);
-  //Serial.println (analog_status[0], BIN);
-  //print_analog_status();
-  //Serial.write (analog_status,4);
-  ready_analog();
-  //Serial.print (analog_pass[0], BIN);
-  //Serial.println (analog_pass[1], BIN);
-  print_analog_pass();
-  //Serial.print (analog_pass[0], BIN);
-  //Serial.println (analog_pass[1], BIN);
-  delay (1000);
+  ready_analog();                                                         // convert analog int values to binary values, ready for passing to topside
+  Serial.write (analog_pass, 32);                                         // write the analog_pass array to the serial line in 32 bytes
   Serial.flush();                                                         // flush the serial line between pins (each pin is sent as one full byte)
 }
 
@@ -62,13 +43,6 @@ void check_buttons() {                                                    // che
       button_status[i] = false;
     }
   }
-}
-
-void print_button_status() {                                              // prints the array button_status as a single line in the console for testing
-  for (int i=0; i < 24; i++) {
-    Serial.print (button_status[i]);
-  }
-  Serial.println (" ");
 }
 
 void light_buttons() {                                                    // turns the led on and off
@@ -87,53 +61,9 @@ void check_analog() {                                                     // upd
   }
 }
 
-void print_analog_status() {
+void ready_analog() {                                                     // convert the analog values to binary
   for (int i=0; i < 16; i++) {
-    Serial.print (analog_status[i]);
-  }
-  Serial.println (" ");
-}
-
-void ready_analog() {
-  for (int i=0; i < 16; i++) {
-    analog_pass[i*2] = (word) analog_status[i] >> 8;
-    analog_pass[(i*2)+1] = (byte) analog_status[i];
+    analog_pass[i*2] = (word) analog_status[i] >> 8;                      // put first bit of binary analog value into even array fields
+    analog_pass[(i*2)+1] = (byte) analog_status[i];                       // put second bit of binary analog value into odd array fields
   }
 }
-
-void print_analog_pass() {
-  for (int i=0; i < 32; i++) {
-    Serial.print (analog_pass[i], BIN);
-  }
-  Serial.println (" ");
-}
-
-
-/*
-void loop() {
-  if (!Serial.available()) {																		// if serial is not available, continue looping here
-    return;
-  }
-  char buffer[4];																					// define the length of serial message as an array of 4 characters (bytes)
-  Serial.readBytes(buffer, 4);																		// store the data from the serial line in the buffer
-  if (buffer[0] == WRITE) {
-    for (int j = 1; j < 4; j++)
-    for (int i = 0; i < 8; i++) {
-     digitalWrite(outputPin[i], (0x70&(buffer[j]<<i))); 											// extract state for each pin (by shifting & masking) from the serial data
-    }
-  }
-   if (buffer[0] == READ_DIGITAL) {
-    for (int i = 0; i < 24; i++) {
-      Serial.write (digitalRead(inputPin[i]));														// read each input pin and write state to the serial line
-      Serial.flush();																				// flush the serial line between pins (each pin is sent as one full byte)
-    }
-  }
-  
-  if (buffer[0] == READ_ANALOG) {
-    for (int i = 0; i < 16; i++) {
-      Serial.write (analogRead(analogPin[i]));														// write each analog value (10 bits) to the serial line
-      Serial.flush();																				// flush the line between analog pins
-    }
-  }
-}
-*/
