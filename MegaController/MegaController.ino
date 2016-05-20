@@ -2,6 +2,7 @@
 const byte READ_NEW_COMMAND = 0x00;
 const byte WRITE_DIGITAL_VAL = 0x01;
 const byte WRITE_DIGITAL_MODE = 0x02;
+const byte HEARTBEAT_REQUEST = 0x03;
 
 /* Message lengths */
 const int WRITE_DIGITAL_VAL_LEN = 2;
@@ -16,6 +17,7 @@ const byte INPUT_PULLUP_MODE = 0x03;
 const byte START_BYTE = 0xAA;
 const byte DIGITAL_CHANGE = 0x00;
 const byte ANALOG_CHANGE = 0x01;
+const byte HEARTBEAT = 0x02;
 
 /* Device details */
 const int DIGITAL_PIN_COUNT = 54;
@@ -42,6 +44,7 @@ void setup() {
         analogPins[i] = -ANALOG_STEP - 1;
     }
     Serial.begin(115200);
+    Serial.write(START_BYTE);
 }
 
 void loop() {
@@ -79,6 +82,12 @@ void processUserRequests() {
                 writeDigitalPinMode(address, value);
                 operationState = READ_NEW_COMMAND;
             }
+        }
+        else if (operationState == HEARTBEAT_REQUEST) {
+            Serial.write(START_BYTE);
+            Serial.write(HEARTBEAT);
+            Serial.write(1);
+            operationState = READ_NEW_COMMAND;
         }
         else {
             operationState = READ_NEW_COMMAND;
