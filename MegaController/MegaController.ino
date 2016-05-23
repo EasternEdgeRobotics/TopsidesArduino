@@ -97,7 +97,7 @@ void processUserRequests() {
 }
 
 void writeDigitalPinValue(byte address, byte value) {
-    digitalWrite(address, value > 0 ? HIGH : LOW);
+    digitalWrite(address, value > 0 ? LOW : HIGH);
 }
 
 void writeDigitalPinMode(byte address, byte value) {
@@ -107,6 +107,7 @@ void writeDigitalPinMode(byte address, byte value) {
             break;
         case OUTPUT_MODE:
             pinMode(address, OUTPUT);
+            digitalWrite(address, HIGH);
             break;
         case INPUT_PULLUP_MODE:
             pinMode(address, INPUT_PULLUP);
@@ -143,7 +144,9 @@ void readAnalog() {
            diff = -diff;
         }
         analogPinChange[pin] = diff < ANALOG_STEP ? 0 : 1;
-        analogPins[pin] = value;
+        if (analogPinChange[pin]) {
+            analogPins[pin] = value;
+        }
     }
 }
 
