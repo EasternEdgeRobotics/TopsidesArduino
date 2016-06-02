@@ -3,6 +3,7 @@ const byte READ_NEW_COMMAND = 0x00;
 const byte WRITE_DIGITAL_VAL = 0x01;
 const byte WRITE_DIGITAL_MODE = 0x02;
 const byte HEARTBEAT_REQUEST = 0x03;
+const byte DUMP_VALUES_REQUEST = 0x04;
 
 /* Message lengths */
 const int WRITE_DIGITAL_VAL_LEN = 2;
@@ -36,13 +37,7 @@ byte analogPinChange[ANALOG_PIN_COUNT];
 short analogPins[ANALOG_PIN_COUNT];
 
 void setup() {
-    // Set all pin values to transmit on startup
-    for(int i = 0; i < DIGITAL_PIN_COUNT; i++) {
-        digitalPins[i] = -1;
-    }
-    for(int i = 0; i < ANALOG_PIN_COUNT; i++) {
-        analogPins[i] = -ANALOG_STEP - 1;
-    }
+    forceValueChanges();
     Serial.begin(115200);
     Serial.write(START_BYTE);
 }
@@ -89,10 +84,22 @@ void processUserRequests() {
             Serial.write(1);
             operationState = READ_NEW_COMMAND;
         }
+        else if (operationState == DUMP_VALUES_REQUEST) {
+            forceValueChanges();
+        }
         else {
             operationState = READ_NEW_COMMAND;
             break;
         }
+    }
+}
+
+void forceValueChanges() {
+    for(int i = 0; i < DIGITAL_PIN_COUNT; i++) {
+        digitalPins[i] = -1;
+    }
+    for(int i = 0; i < ANALOG_PIN_COUNT; i++) {
+        analogPins[i] = -ANALOG_STEP - 1;
     }
 }
 
