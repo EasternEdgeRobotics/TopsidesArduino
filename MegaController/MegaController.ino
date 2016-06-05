@@ -39,7 +39,6 @@ short analogPins[ANALOG_PIN_COUNT];
 void setup() {
     forceValueChanges();
     Serial.begin(115200);
-    Serial.write(START_BYTE);
 }
 
 void loop() {
@@ -86,6 +85,7 @@ void processUserRequests() {
         }
         else if (operationState == DUMP_VALUES_REQUEST) {
             forceValueChanges();
+            operationState = READ_NEW_COMMAND;
         }
         else {
             operationState = READ_NEW_COMMAND;
